@@ -1,1 +1,1 @@
-# autoshorts_ai
+# AutoShorts AI
