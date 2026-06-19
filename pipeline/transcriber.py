@@ -1,114 +1,158 @@
-# BE-1: Transcription module
-
-# transcription logic here
 import json
-import os
-import subprocess
-
-from faster_whisper import WhisperModel
-
-def extract_audio(video_path, audio_path):
-	command = [
-		"ffmpeg",
-		"-y",
-		"-i",
-		video_path,
-		"-ar",
-		"16000",
-		"-ac",
-		"1",
-		"-f",
-		"wav",
-		audio_path,
-	]
-
-	try:
-		result = subprocess.run(
-			command,
-			stdout=subprocess.PIPE,
-			stderr=subprocess.PIPE,
-			text=True,
-			check=True,
-		)
-	except FileNotFoundError as exc:
-		raise RuntimeError("ffmpeg not found") from exc
-	except subprocess.CalledProcessError as exc:
-		error_text = (exc.stderr or "").strip()
-		message = error_text or "unknown ffmpeg error"
-		raise RuntimeError(f"ffmpeg failed: {message}") from exc
-
-	return result
+import re
 
 
-def load_model(model_size="base"):
-	return WhisperModel(model_size, device="cpu", compute_type="int8")
+VIRAL_KEYWORDS = {
+    "insane": 2, "crazy": 2, "shocking": 2,
+    "unbelievable": 2, "secret": 2, "wait": 1.5,
+    "watch": 1.5, "exposed": 2,
+    "you won't believe": 3, "mind blown": 3, "breaking": 2.5
+}
+
+WEIGHTS = {
+    "keyword": 1.2,
+    "energy": 0.8,
+    "pause": 0.7
+}
+
+WINDOW_SIZE = 3
+TOP_K = 5
+MERGE_GAP = 0.3
 
 
-def transcribe_audio(audio_path, model):
-	try:
-		segments, info = model.transcribe(audio_path, word_timestamps=True)
-	except Exception as exc:
-		message = str(exc).strip() or "unknown transcription error"
-		raise RuntimeError(f"transcription failed: {message}") from exc
-
-	return segments, info
+def load_transcript(path):
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
-def build_transcript(segments, language):
-	words = []
-	for segment in segments:
-		for word in segment.words:
-			clean_word = word.word.strip()
-			words.append(
-				{
-					"word": clean_word,
-					"start": round(word.start, 2),
-					"end": round(word.end, 2),
-				}
-			)
+def build_windows(words):
+    if len(words) < WINDOW_SIZE:
+        return []
 
-	return {"language": language, "words": words}
+    windows = []
+    for i in range(len(words) - WINDOW_SIZE + 1):
+        chunk = words[i:i + WINDOW_SIZE]
 
+        text = " ".join(w["word"] for w in chunk)
+        start = chunk[0]["start"]
+        end = chunk[-1]["end"]
 
-def save_transcript(data, output_path):
-	try:
-		with open(output_path, "w", encoding="utf-8") as file:
-			json.dump(data, file, indent=4, ensure_ascii=False)
-	except Exception as exc:
-		message = str(exc).strip() or "unknown save error"
-		raise RuntimeError(f"save failed: {message}") from exc
+        windows.append({
+            "text": text,
+            "start": start,
+            "end": end
+        })
+
+    return windows
 
 
-def get_autoshorts_root():
-	return os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+def keyword_score(text):
+    text_lower = text.lower()
+    score = 0
+
+    for word, weight in VIRAL_KEYWORDS.items():
+        if re.search(rf"\b{re.escape(word)}\b", text_lower):
+            score += weight
+
+    return score
 
 
-def transcribe_video(video_path, transcript_path, model_size="base"):
-	if not os.path.isfile(video_path):
-		raise FileNotFoundError(video_path)
+def energy_score(text):
+    score = 0
 
-	base_dir = get_autoshorts_root()
-	temp_dir = os.path.join(base_dir, "temp")
-	os.makedirs(temp_dir, exist_ok=True)
+    if text.isupper() and len(text) > 3:
+        score += 2
 
-	audio_path = os.path.join(temp_dir, "audio.wav")
-	if not os.path.isabs(transcript_path):
-		transcript_path = os.path.join(base_dir, transcript_path)
-	print("extracting audio...")
-	extract_audio(video_path, audio_path)
-	print("loading model...")
-	model = load_model(model_size)
-	print("transcribing...")
-	segments, info = transcribe_audio(audio_path, model)
-	transcript = build_transcript(segments, info.language)
-	print("saving transcript...")
-	save_transcript(transcript, transcript_path)
-	print("done")
-	return transcript
+    score += text.count("!") * 1.2
+    score += text.count("?") * 1.0
+
+    return score
+
+
+def pause_score(prev_end, start):
+    if prev_end is None:
+        return 0
+
+    gap = start - prev_end
+
+    if gap > 2.0:
+        return 2
+    elif gap > 1.2:
+        return 1
+
+    return 0
+
+
+def compute_score(text, prev_end, start):
+    score = 0
+    score += keyword_score(text) * WEIGHTS["keyword"]
+    score += energy_score(text) * WEIGHTS["energy"]
+    score += pause_score(prev_end, start) * WEIGHTS["pause"]
+    return round(score, 3)
+
+
+def normalize(results):
+    if not results:
+        return results
+
+    max_score = max(r["score"] for r in results)
+    if max_score == 0:
+        return results
+
+    for r in results:
+        r["score_normalized"] = round(r["score"] / max_score, 3)
+
+    return results
+
+
+def merge_clips(clips):
+    if not clips:
+        return clips
+
+    clips = sorted(clips, key=lambda x: x["start"])
+    merged = [clips[0]]
+
+    for c in clips[1:]:
+        last = merged[-1]
+
+        if c["start"] <= last["end"] + MERGE_GAP:
+            last["end"] = max(last["end"], c["end"])
+            last["score"] = max(last["score"], c["score"])
+            last["text"] = last["text"] + " " + c["text"]
+        else:
+            merged.append(c)
+
+    return merged
+
+
+def score_transcript(transcript_path):
+    transcript = load_transcript(transcript_path)
+    words = transcript["words"]
+
+    windows = build_windows(words)
+
+    results = []
+    prev_end = None
+
+    for w in windows:
+        score = compute_score(w["text"], prev_end, w["start"])
+
+        results.append({
+            "text": w["text"],
+            "start": w["start"],
+            "end": w["end"],
+            "score": score
+        })
+
+        prev_end = w["end"]
+
+    results = sorted(results, key=lambda x: x["score"], reverse=True)
+    top = results[:TOP_K]
+
+    merged = merge_clips(top)
+    return normalize(merged)
 
 
 if __name__ == "__main__":
-	base_dir = get_autoshorts_root()
-	video_path = os.path.join(base_dir, "uploads", "test.mp4")
-	transcript = transcribe_video(video_path, "transcript.json", "tiny")
-	print(len(transcript["words"]))
+    results = score_transcript("transcript.json")
+    print(results)
