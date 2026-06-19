@@ -1,1 +1,6 @@
 # pip dependencies
+flask
+moviepy
+pillow
+numpy
+imageio-ffmpeg
