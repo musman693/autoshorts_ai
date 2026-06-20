@@ -95,19 +95,14 @@ def select_best_clips(scored_data, min_duration=15, max_duration=60, max_clips=3
         
     candidates = generate_candidates(scored_data, min_duration, max_duration)
     
-    # If video is too short and no candidates meet min_duration,
-    # return the longest available non-overlapping clip if under max_duration.
+    # If no candidates meet min_duration, log warning but don't force short clips
     if not candidates:
+        import sys
         chrono_data = sorted(scored_data, key=lambda x: x["start"])
         total_dur = chrono_data[-1]["end"] - chrono_data[0]["start"]
-        if total_dur <= max_duration:
-            score_key = "score_normalized" if "score_normalized" in chrono_data[0] else "score"
-            total_score = sum(item.get(score_key, 0) for item in chrono_data)
-            return [{
-                "start": chrono_data[0]["start"],
-                "end": chrono_data[-1]["end"],
-                "score": round(total_score, 3)
-            }]
+        print(f"WARNING: No clips found meeting duration constraints (min={min_duration}s, max={max_duration}s)", file=sys.stderr)
+        print(f"         Total video duration: {total_dur:.1f}s", file=sys.stderr)
+        print(f"         Consider: uploading a longer video or adjusting duration constraints", file=sys.stderr)
         return []
 
     selected_clips = []

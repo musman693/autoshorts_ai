@@ -140,10 +140,12 @@ def score_transcript(path):
     results.sort(key=lambda x: x["score"], reverse=True)
     results = normalize_scores(results)
 
-    top_results = results[:5]
-    merged = merge_clips(top_results)
-
-    return merged
+    # Return all scored windows (don't limit to top 5 or merge aggressively)
+    # Let the selector handle filtering based on duration constraints
+    # Sort chronologically for consistent processing
+    results.sort(key=lambda x: x["start"])
+    
+    return results
 
 
 if __name__ == "__main__":

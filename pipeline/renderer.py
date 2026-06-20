@@ -3,28 +3,42 @@ import json
 import os
 import shutil
 import subprocess
-import imageio_ffmpeg
-import os
-import subprocess
+import sys
 
-def get_ffmpeg_executable():
-ffmpeg_path = os.getenv("FFMPEG_PATH")
-if ffmpeg_path:
-if os.path.isfile(ffmpeg_path):
-return ffmpeg_path
-else:
-raise RuntimeError(f"FFMPEG_PATH is set but the file does not exist: {ffmpeg_path}")
-
-system_ffmpeg = shutil.which("ffmpeg")
-if system_ffmpeg:
-return system_ffmpeg
+# Bug 2 Fix: Add import validation - gracefully handle missing dependencies
+imageio_ffmpeg = None
+_imageio_import_error = None
 
 try:
-return imageio_ffmpeg.get_ffmpeg_exe()
-except Exception as exc:
-raise RuntimeError(
-"ffmpeg not found. Install ffmpeg and add it to PATH, or set FFMPEG_PATH to the ffmpeg executable."
-) from exc
+    import imageio_ffmpeg
+except ImportError as e:
+    _imageio_import_error = e
+    print("WARNING: imageio_ffmpeg not installed. FFmpeg features may not work.", file=sys.stderr)
+
+def get_ffmpeg_executable():
+    """Get the ffmpeg executable path with proper error handling."""
+    # Check if imageio_ffmpeg is available
+    if imageio_ffmpeg is None and _imageio_import_error:
+        raise RuntimeError("imageio_ffmpeg not installed. Install with: pip install imageio-ffmpeg") from _imageio_import_error
+    
+    # Bug 2 Fix: Handle None gracefully when FFMPEG_PATH is not set
+    ffmpeg_path = os.getenv("FFMPEG_PATH")
+    if ffmpeg_path is not None:
+        if os.path.isfile(ffmpeg_path):
+            return ffmpeg_path
+        else:
+            raise RuntimeError(f"FFMPEG_PATH is set but the file does not exist: {ffmpeg_path}")
+
+    system_ffmpeg = shutil.which("ffmpeg")
+    if system_ffmpeg:
+        return system_ffmpeg
+
+    try:
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except Exception as exc:
+        raise RuntimeError(
+            "ffmpeg not found. Install ffmpeg and add it to PATH, or set FFMPEG_PATH to the ffmpeg executable."
+        ) from exc
 
 def get_autoshorts_root():
     return os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))

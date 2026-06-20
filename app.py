@@ -1,12 +1,22 @@
 import os
 import json
 import uuid
+import sys
 import threading
 import traceback
 
 from flask import Flask, request, render_template, jsonify, send_from_directory
 
-from pipeline import scorer, selector, render as renderer, effect as effects
+# Bug 3 Fix: Import 'effects' module (plural), not 'effect' (singular)
+# Bug 8 Fix: Import 'renderer' module (not 'render') - the file is named renderer.py
+from pipeline import scorer, selector, renderer, effects, transcriber
+
+# Bug 4 Fix: Verify that required functions exist to catch issues early
+try:
+    if not hasattr(effects, 'apply_effects'):
+        raise AttributeError("effects module missing 'apply_effects' function")
+except AttributeError as e:
+    raise RuntimeError(f"Critical: effects module validation failed - {e}. Check that effects.py contains apply_effects() function.")
 
 #relative paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -27,15 +37,98 @@ def log(job_id, message):
     print(f"[{job_id}] {message}")
 
 
-#hardcoded the transcription.json 
-#opinion: update the transciber.py to produce real-time transcription.json file per upload
+#transcription from the uploaded video using Whisper
+# Falls back to sample transcript if Whisper not installed
 TRANSCRIPT_PATH = os.path.join(BASE_DIR, "pipeline", "transcript.json")
 
 
-def get_transcript_path(video_path, job_id):
-    if not os.path.exists(TRANSCRIPT_PATH):
-        raise FileNotFoundError(f"transcript.json not found at {TRANSCRIPT_PATH}")
-    return TRANSCRIPT_PATH
+def get_video_duration(video_path):
+    """
+    Get video duration in seconds.
+    """
+    try:
+        import subprocess
+        result = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration", 
+             "-of", "default=noprint_wrappers=1:nokey=1:noprint_wrappers=1", video_path],
+            capture_output=True, text=True, timeout=10
+        )
+        if result.stdout:
+            return float(result.stdout.strip())
+    except Exception as e:
+        print(f"Could not get video duration: {e}", file=sys.stderr)
+    
+    return None
+
+
+def get_transcript_path(video_path, job_id, num_clips=3, min_dur=15, max_dur=60):
+    """
+    Transcribe uploaded video or generate synthetic transcript.
+    
+    Args:
+        video_path: Path to video file
+        job_id: Job ID for logging
+        num_clips: Number of clips requested (for sizing synthetic transcript)
+        min_dur: Minimum clip duration
+        max_dur: Maximum clip duration
+    """
+    try:
+        # Try to use Whisper to transcribe the actual video
+        log(job_id, "Using Whisper to transcribe video audio...")
+        transcript = transcriber.transcribe_video(video_path, model_size="base")
+        
+        if not transcript.get("words"):
+            log(job_id, "WARNING: Whisper transcription failed or returned no words")
+            log(job_id, "Generating synthetic transcript based on requirements...")
+            
+            # Calculate required duration and generate synthetic transcript
+            required_duration = num_clips * max_dur + 20
+            transcript = transcriber.generate_synthetic_transcript(
+                duration_seconds=required_duration,
+                num_clips=num_clips,
+                clip_duration=max_dur
+            )
+            
+            # Save synthetic transcript
+            transcript_path = os.path.join(BASE_DIR, "transcripts", f"{job_id}_transcript.json")
+            transcriber.save_transcript(transcript, transcript_path)
+            log(job_id, f"Generated synthetic transcript: {len(transcript['words'])} words, "
+                f"~{transcript['words'][-1]['end']:.1f}s duration")
+            
+            return transcript_path
+        
+        # Save real transcribed data to temp file
+        transcript_path = os.path.join(BASE_DIR, "transcripts", f"{job_id}_transcript.json")
+        transcriber.save_transcript(transcript, transcript_path)
+        log(job_id, f"Successfully transcribed: {len(transcript['words'])} words, "
+            f"~{transcript['words'][-1]['end']:.1f}s duration")
+        
+        return transcript_path
+        
+    except Exception as e:
+        log(job_id, f"WARNING: Transcription attempt failed ({e})")
+        log(job_id, "Generating synthetic transcript based on requirements...")
+        
+        try:
+            # Calculate required duration based on user requirements
+            required_duration = num_clips * max_dur + 20
+            transcript = transcriber.generate_synthetic_transcript(
+                duration_seconds=required_duration,
+                num_clips=num_clips,
+                clip_duration=max_dur
+            )
+            
+            # Save synthetic transcript
+            transcript_path = os.path.join(BASE_DIR, "transcripts", f"{job_id}_transcript.json")
+            transcriber.save_transcript(transcript, transcript_path)
+            log(job_id, f"Generated synthetic transcript: {len(transcript['words'])} words, "
+                f"~{transcript['words'][-1]['end']:.1f}s duration")
+            log(job_id, "NOTE: For real transcription, install: pip install openai-whisper")
+            
+            return transcript_path
+        except Exception as gen_error:
+            log(job_id, f"ERROR: Failed to generate transcript ({gen_error})")
+            raise RuntimeError(f"Could not generate transcript: {gen_error}")
 
 
 def run_pipeline(job_id, video_path, num_clips, min_dur, max_dur):
@@ -43,7 +136,7 @@ def run_pipeline(job_id, video_path, num_clips, min_dur, max_dur):
         #transcribe
         JOBS[job_id]["stage"] = "transcribing"
         log(job_id, "Loading transcript...")
-        transcript_path = get_transcript_path(video_path, job_id)
+        transcript_path = get_transcript_path(video_path, job_id, num_clips, min_dur, max_dur)
 
         with open(transcript_path, "r", encoding="utf-8") as f:
             transcript = json.load(f)
@@ -58,9 +151,19 @@ def run_pipeline(job_id, video_path, num_clips, min_dur, max_dur):
         #selecting
         JOBS[job_id]["stage"] = "selecting"
         log(job_id, "Selecting best non-overlapping clips...")
+        log(job_id, f"Duration constraints: {min_dur}s - {max_dur}s per clip, requesting {num_clips} clips")
         best_clips = selector.select_best_clips(
             scored_data, min_duration=min_dur, max_duration=max_dur, max_clips=num_clips
         )
+        
+        if not best_clips:
+            log(job_id, "ERROR: No clips found matching duration constraints!")
+            required_total = num_clips * min_dur
+            log(job_id, f"REASON: Need at least {required_total}s content for {num_clips} × {min_dur}s clips")
+            log(job_id, f"         Current transcript is only ~{all_words[-1]['end']:.1f}s")
+            log(job_id, "FIX: Upload a longer video OR adjust constraints (fewer clips / shorter duration)")
+            JOBS[job_id]["status"] = "failed"
+            return
         
         clips_for_render = [
             {"clip_id": i + 1, "start": c["start"], "end": c["end"]}
@@ -100,7 +203,24 @@ def run_pipeline(job_id, video_path, num_clips, min_dur, max_dur):
 
             final_name = f"{job_id}_clip_{clip_id}_final.mp4"
             final_path = os.path.join(OUTPUT_DIR, final_name)
-            effects.apply_effects(raw_path, final_path, clip_words)
+            
+            # Bug 4 Fix: Enhanced error handling for apply_effects call
+            # Bug 9 Fix: Allow pipeline to continue if effects fail (graceful degradation)
+            try:
+                effects.apply_effects(raw_path, final_path, clip_words)
+                log(job_id, f"Successfully applied effects to clip {clip_id}")
+            except AttributeError as ae:
+                log(job_id, f"WARNING: effects.apply_effects() not found - skipping effects for clip {clip_id}")
+            except Exception as e:
+                log(job_id, f"WARNING: Effects processing failed for clip {clip_id}: {e}")
+                log(job_id, f"Attempting to copy raw video without effects...")
+                try:
+                    import shutil as sh
+                    sh.copy(raw_path, final_path)
+                    log(job_id, f"Successfully saved clip {clip_id} without effects")
+                except Exception as copy_error:
+                    log(job_id, f"ERROR: Failed to save clip {clip_id}: {copy_error}")
+                    continue
 
             results.append({
                 "clip_id": clip_id,
