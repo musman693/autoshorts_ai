@@ -3,9 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Autoshorts AI</title>
+    <title>AutoShorts AI - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <!-- user interface design-->
+    <div class="app-container">
+        <header>
+            <h1>🎬 AutoShorts AI</h1>
+            <p class="tagline">Transform long videos into viral 9:16 shorts using AI window scoring</p>
+        </header>
+
+        <main class="grid-layout">
+            <section class="control-panel">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="drop-zone" id="dropZone">
+                        <span class="drop-zone__prompt">Drag & Drop Video or Click to Browse</span>
+                        <input type="file" name="video" id="videoInput" accept="video/*" required>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>⚙️ Pipeline Configurations</h3>
+                        
+                        <div class="input-field">
+                            <label for="num_clips">Max Clips to Generate:</label>
+                            <input type="number" id="num_clips" name="num_clips" value="3" min="1" max="10">
+                        </div>
+
+                        <div class="input-field">
+                            <label for="min_dur">Minimum Clip Duration (sec):</label>
+                            <input type="number" id="min_dur" name="min_dur" value="15" min="1">
+                        </div>
+
+                        <div class="input-field">
+                            <label for="max_dur">Maximum Clip Duration (sec):</label>
+                            <input type="number" id="max_dur" name="max_dur" value="60" min="2">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="submitBtn">Generate Shorts</button>
+                </form>
+            </section>
+
+            <section class="monitor-panel">
+                <div class="panel-header">
+                    <h3>📊 Live Pipeline Status</h3>
+                    <span class="status-badge" id="statusBadge">Idle</span>
+                </div>
+
+                <div class="progress-wrapper">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+
+                <div class="terminal-container">
+                    <div class="terminal-header">Terminal Logs</div>
+                    <div class="terminal-body" id="terminalLogs">
+                        <span class="log-info">[System] Ready. Awaiting video upload...</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <section class="results-panel" id="resultsPanel" style="display: none;">
+            <div class="panel-header">
+                <h2>✨ Generated Viral Shorts</h2>
+            </div>
+            <div class="video-grid" id="videoGrid"></div>
+        </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>
