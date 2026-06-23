@@ -19,7 +19,7 @@
                 <nav class="nav-menu">
                     <button class="nav-item active" data-page="upload-page" onclick="switchPage('upload-page')">
                         <span class="nav-icon">📤</span>
-                        <span class="nav-text">Upload Video</span>
+                        <span class="nav-text">Upload</span>
                     </button>
                     <button class="nav-item" data-page="pipeline-page" onclick="switchPage('pipeline-page')" disabled id="pipelineBtn">
                         <span class="nav-icon">⚙️</span>
@@ -28,6 +28,10 @@
                     <button class="nav-item" data-page="results-page" onclick="switchPage('results-page')" disabled id="resultsBtn">
                         <span class="nav-icon">✨</span>
                         <span class="nav-text">Results</span>
+                    </button>
+                    <button class="nav-item" data-page="history-page" onclick="switchPage('history-page')">
+                        <span class="nav-icon">📜</span>
+                        <span class="nav-text">History</span>
                     </button>
                 </nav>
             </aside>
@@ -63,9 +67,9 @@
                             <!-- YouTube URL Tab -->
                             <div id="youtube-url" class="upload-tab-content">
                                 <div class="input-field-full">
-                                    <label for="youtubeUrl">YouTube Video URL:</label>
+                                    <label for="youtube_url">YouTube Video URL:</label>
                                     <div class="input-group">
-                                        <input type="url" id="youtubeUrl" name="youtubeUrl" placeholder="https://www.youtube.com/watch?v=..." class="url-input">
+                                        <input type="url" id="youtube_url" name="youtube_url" placeholder="https://www.youtube.com/watch?v=..." class="url-input">
                                         <button type="button" id="validateBtn" class="btn-validate" onclick="validateYoutubeUrl()">Validate</button>
                                     </div>
                                     <div id="youtubeInfo" class="file-info"></div>
@@ -79,11 +83,11 @@
                                 <div class="input-field">
                                     <label for="whisper_model">Whisper Model:</label>
                                     <select id="whisper_model" name="whisper_model">
-                                        <option value="tiny" selected>Tiny (⚡ Fastest)</option>
-                                        <option value="base">Base (🎯 Balanced)</option>
-                                        <option value="small">Small</option>
-                                        <option value="medium">Medium</option>
-                                        <option value="large">Large (🎨 Accurate)</option>
+                                        <option value="tiny" selected>Tiny ⚡ - Super fast, basic accuracy (2-3 min)</option>
+                                        <option value="base">Base 🎯 - Balanced speed & quality (5-7 min)</option>
+                                        <option value="small">Small 🎬 - Better accuracy, slower (10-12 min)</option>
+                                        <option value="medium">Medium 🎨 - High accuracy, much slower (25-30 min)</option>
+                                        <option value="large">Large 🏆 - Best accuracy, very slow (45-60 min)</option>
                                     </select>
                                 </div>
                                 
@@ -181,18 +185,6 @@
                             <div class="progress-text" id="progressText">0%</div>
                         </div>
 
-                        <!-- Clips Processing Sequence -->
-                        <div class="clips-sequence-container" id="clipsSequenceContainer" style="display: none;">
-                            <div class="sequence-header">
-                                <h3>📹 Clips Processing Sequence</h3>
-                                <span class="clips-count" id="clipsCount"></span>
-                            </div>
-                            <div class="clips-sequence" id="clipsSequence"></div>
-                        </div>
-
-                        <!-- Clips Progress -->
-                        <div class="clips-progress" id="clipsProgress"></div>
-
                         <!-- Transcript Panel -->
                         <div class="transcript-panel" id="transcriptPanel" style="display: none;">
                             <div class="transcript-header" onclick="document.querySelector('.transcript-body').classList.toggle('show')">
@@ -240,6 +232,23 @@
                         <div class="results-actions">
                             <button class="btn-secondary" onclick="goBackToUpload()">← New Video</button>
                             <button class="btn-secondary" onclick="downloadAllClips()" id="downloadAllBtn" style="display: none;">📥 Download All</button>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- PAGE 5: History -->
+                <section id="history-page" class="page">
+                    <div class="page-content">
+                        <h2 class="page-title">📜 Processing History</h2>
+                        
+                        <div class="history-controls">
+                            <input type="text" id="historySearch" placeholder="Search history..." class="history-search">
+                            <button class="btn-secondary" onclick="clearHistory()">🗑️ Clear History</button>
+                        </div>
+
+                        <div id="historyList" class="history-list">
+                            <p class="empty-state">📭 No history yet. Start by uploading a video!</p>
                         </div>
                     </div>
                 </section>

@@ -166,16 +166,17 @@ def run_pipeline(job_id, video_path, num_clips, min_dur, max_dur, whisper_model=
         log(job_id, "🗣️ Transcribing audio...")
         transcribe_start = time.time()
         
-        # Check transcript cache
-        video_hash = hash(video_path)
-        if video_hash in TRANSCRIPT_CACHE:
-            log(job_id, "📦 Using cached transcript...")
-            transcript_path = TRANSCRIPT_CACHE[video_hash]
+        # Use job_id as transcript cache key to ensure each job has its own transcript
+        # This prevents transcript from previous jobs being reused for current job
+        if job_id in TRANSCRIPT_CACHE:
+            log(job_id, "📦 Using cached transcript from previous run...")
+            transcript_path = TRANSCRIPT_CACHE[job_id]
             transcribe_time = time.time() - transcribe_start
             log(job_id, f"✅ Transcription complete from cache ({transcribe_time:.1f}s)")
         else:
+            log(job_id, f"🎤 Generating new transcript for this job (Whisper model: {whisper_model})...")
             transcript_path = get_transcript_path(video_path, job_id, num_clips, min_dur, max_dur, whisper_model)
-            TRANSCRIPT_CACHE[video_hash] = transcript_path
+            TRANSCRIPT_CACHE[job_id] = transcript_path
             transcribe_time = time.time() - transcribe_start
             log(job_id, f"✅ Transcription complete ({transcribe_time:.1f}s)")
 
@@ -370,27 +371,33 @@ def upload():
     if youtube_url:
         # YouTube URL mode
         try:
-            JOBS[job_id]["log"].append("Downloading from YouTube...")
+            print(f"[DEBUG] YouTube mode: URL={youtube_url}")
+            JOBS[job_id]["log"].append(f"📥 Downloading from YouTube: {youtube_url}")
             
             # Configure yt-dlp
             ydl_opts = {
                 'format': 'best[ext=mp4]/best',
-                'quiet': True,
-                'no_warnings': True,
+                'quiet': False,  # Show more output for debugging
+                'no_warnings': False,
                 'outtmpl': os.path.join(UPLOAD_DIR, f"{job_id}_%(title)s.%(ext)s"),
             }
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                print(f"[DEBUG] Extracting video info from: {youtube_url}")
                 info = ydl.extract_info(youtube_url, download=True)
                 video_filename = ydl.prepare_filename(info)
                 video_path = video_filename
+                print(f"[DEBUG] Downloaded to: {video_path}")
                 
             JOBS[job_id]["video_name"] = info.get('title', 'YouTube Video')
-            JOBS[job_id]["log"].append(f"Downloaded: {JOBS[job_id]['video_name']}")
+            JOBS[job_id]["log"].append(f"✅ Downloaded: {JOBS[job_id]['video_name']}")
+            print(f"[DEBUG] Video name: {JOBS[job_id]['video_name']}")
             
         except Exception as e:
-            JOBS[job_id]["error"] = f"YouTube download failed: {str(e)}"
-            JOBS[job_id]["log"].append(f"Error: {str(e)}")
+            error_msg = f"YouTube download failed: {str(e)}"
+            print(f"[DEBUG] YouTube error: {error_msg}")
+            JOBS[job_id]["error"] = error_msg
+            JOBS[job_id]["log"].append(f"❌ Error: {error_msg}")
             return jsonify({"error": JOBS[job_id]["error"]}), 400
     
     elif "video" in request.files:
@@ -403,9 +410,13 @@ def upload():
         video_path = os.path.join(UPLOAD_DIR, f"{job_id}_{safe_name}")
         file.save(video_path)
         JOBS[job_id]["video_name"] = file.filename
+        print(f"[DEBUG] File mode: Saved to {video_path}")
         
     else:
-        return jsonify({"error": "No video file or YouTube URL provided"}), 400
+        error_msg = "No video file or YouTube URL provided"
+        print(f"[DEBUG] Error: {error_msg}")
+        print(f"[DEBUG] Form data: youtube_url='{youtube_url}', has_video={'video' in request.files}")
+        return jsonify({"error": error_msg}), 400
 
     # Start pipeline thread
     thread = threading.Thread(

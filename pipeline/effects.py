@@ -48,18 +48,62 @@ def add_zoom_effect(clip, zoom_ratio=0.1):
 
     return clip.fl(effect)
 
+def create_caption_image(word, width=1080, height=1920):
+    """
+    Create a caption image using PIL instead of TextClip (more reliable on Windows).
+    Returns numpy array of the image with transparent background.
+    """
+    from PIL import Image, ImageDraw, ImageFont
+    
+    try:
+        # Create transparent image (RGBA)
+        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(img)
+        
+        # Try to use Arial font, fallback to default
+        try:
+            font = ImageFont.truetype("arial.ttf", 90)
+        except:
+            try:
+                font = ImageFont.truetype("C:\\Windows\\Fonts\\arial.ttf", 90)
+            except:
+                font = ImageFont.load_default()
+        
+        # Calculate text position (centered at bottom)
+        bbox = draw.textbbox((0, 0), word, font=font)
+        text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
+        x = (width - text_width) // 2
+        y = height - text_height - 100  # Bottom with margin
+        
+        # Draw text with outline effect
+        outline_width = 3
+        # Draw black outline
+        for adj_x in range(-outline_width, outline_width + 1):
+            for adj_y in range(-outline_width, outline_width + 1):
+                if adj_x != 0 or adj_y != 0:
+                    draw.text((x + adj_x, y + adj_y), word, font=font, fill=(0, 0, 0, 255))
+        # Draw yellow text on top
+        draw.text((x, y), word, font=font, fill=(255, 255, 0, 255))
+        
+        return np.array(img)
+    except Exception as e:
+        print(f"WARNING: Failed to create caption image: {e}", file=sys.stderr)
+        return None
+
+
 def add_captions_with_highlighting(clip, words_data):
     """
-    Overlays captions on the video with word highlighting.
+    Overlays captions on the video with word-level timing using PIL-based images.
+    More reliable than TextClip which requires ImageMagick.
     words_data is expected to be a list of dicts: 
     [{"word": "Hello", "start": 0.0, "end": 0.5}, ...]
-    
-    If TextClip fails (e.g., ImageMagick missing), returns the clip with zoom only.
     """
+    from moviepy.video.VideoClip import ImageClip
+    
     clips_to_composite = [clip]
     text_clips_created = 0
-    skipped_clips = 0
-
+    
     for word_info in words_data:
         word = word_info.get("word", "").strip()
         start = word_info.get("start", 0.0)
@@ -68,60 +112,26 @@ def add_captions_with_highlighting(clip, words_data):
         
         if duration <= 0 or not word:
             continue
-
+        
         try:
-            # Bug 6 Fix: Handle ImageMagick issues on Windows with better error handling
-            txt_clip = TextClip(
-                word, 
-                fontsize=90, 
-                color='yellow', 
-                font='Arial-Bold', 
-                stroke_color='black', 
-                stroke_width=3
-            )
-            text_clips_created += 1
-        except Exception as e:
-            # Fallback 1: Try without advanced font options
-            try:
-                txt_clip = TextClip(
-                    word, 
-                    fontsize=90, 
-                    color='yellow',
-                    method='caption'
-                )
-                text_clips_created += 1
-            except Exception as fallback_error:
-                # Fallback 2: Try basic text clip
-                try:
-                    txt_clip = TextClip(
-                        word, 
-                        fontsize=90, 
-                        color='yellow'
-                    )
-                    text_clips_created += 1
-                except Exception as final_error:
-                    # If all fallbacks fail, skip this text clip but continue processing
-                    skipped_clips += 1
-                    if skipped_clips == 1:
-                        # Print warning only once
-                        print("WARNING: TextClip creation failed (ImageMagick may not be installed).", file=sys.stderr)
-                        print("         Continuing with video processing (captions will be skipped).", file=sys.stderr)
-                    continue
-
-        try:
-            txt_clip = txt_clip.set_position(('center', 'center'))
-            txt_clip = txt_clip.set_start(start).set_duration(duration)
+            # Create caption image using PIL
+            caption_img = create_caption_image(word, width=int(clip.w), height=int(clip.h))
             
-            # Simple pop-in animation: scale up slightly
-            txt_clip = txt_clip.resize(lambda t: min(1.2, 1.0 + 2.0 * t))
-
-            clips_to_composite.append(txt_clip)
+            if caption_img is not None:
+                # Convert PIL image to ImageClip
+                txt_clip = ImageClip(caption_img)
+                txt_clip = txt_clip.set_duration(duration).set_start(start)
+                clips_to_composite.append(txt_clip)
+                text_clips_created += 1
+            else:
+                continue
+                
         except Exception as e:
-            print("WARNING: Failed to position/animate text clip. Skipping.", file=sys.stderr)
+            print(f"WARNING: Failed to add caption for word '{word}': {e}", file=sys.stderr)
             continue
-
-    if text_clips_created == 0 and skipped_clips > 0:
-        print("NOTE: No text captions were added to the video.", file=sys.stderr)
+    
+    if text_clips_created == 0:
+        print("NOTE: No text captions were created (check PIL/Pillow installation).", file=sys.stderr)
 
     return CompositeVideoClip(clips_to_composite)
 

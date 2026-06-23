@@ -1,0 +1,439 @@
+{
+  "words": [
+    {
+      "word": "this",
+      "start": 0.0,
+      "end": 0.67
+    },
+    {
+      "word": "is",
+      "start": 0.67,
+      "end": 1.33
+    },
+    {
+      "word": "insane",
+      "start": 1.33,
+      "end": 2.0
+    },
+    {
+      "word": "wait",
+      "start": 2.3,
+      "end": 2.92
+    },
+    {
+      "word": "you",
+      "start": 2.92,
+      "end": 3.55
+    },
+    {
+      "word": "won't",
+      "start": 3.55,
+      "end": 4.17
+    },
+    {
+      "word": "believe",
+      "start": 4.17,
+      "end": 4.8
+    },
+    {
+      "word": "I",
+      "start": 5.1,
+      "end": 5.68
+    },
+    {
+      "word": "discovered",
+      "start": 5.68,
+      "end": 6.26
+    },
+    {
+      "word": "something",
+      "start": 6.26,
+      "end": 6.84
+    },
+    {
+      "word": "amazing",
+      "start": 6.84,
+      "end": 7.41
+    },
+    {
+      "word": "that",
+      "start": 7.41,
+      "end": 7.99
+    },
+    {
+      "word": "changed",
+      "start": 7.99,
+      "end": 8.57
+    },
+    {
+      "word": "everything",
+      "start": 8.57,
+      "end": 9.15
+    },
+    {
+      "word": "The",
+      "start": 9.35,
+      "end": 9.75
+    },
+    {
+      "word": "first",
+      "start": 9.75,
+      "end": 10.15
+    },
+    {
+      "word": "step",
+      "start": 10.15,
+      "end": 10.55
+    },
+    {
+      "word": "is",
+      "start": 10.55,
+      "end": 10.95
+    },
+    {
+      "word": "automation",
+      "start": 10.95,
+      "end": 11.35
+    },
+    {
+      "word": "can",
+      "start": 11.35,
+      "end": 11.75
+    },
+    {
+      "word": "save",
+      "start": 11.75,
+      "end": 12.15
+    },
+    {
+      "word": "you",
+      "start": 12.15,
+      "end": 12.55
+    },
+    {
+      "word": "hours",
+      "start": 12.55,
+      "end": 12.95
+    },
+    {
+      "word": "every",
+      "start": 12.95,
+      "end": 13.35
+    },
+    {
+      "word": "single",
+      "start": 13.35,
+      "end": 13.75
+    },
+    {
+      "word": "day",
+      "start": 13.75,
+      "end": 14.15
+    },
+    {
+      "word": "I",
+      "start": 14.35,
+      "end": 14.83
+    },
+    {
+      "word": "set",
+      "start": 14.83,
+      "end": 15.32
+    },
+    {
+      "word": "up",
+      "start": 15.32,
+      "end": 15.8
+    },
+    {
+      "word": "automated",
+      "start": 15.8,
+      "end": 16.28
+    },
+    {
+      "word": "workflows",
+      "start": 16.28,
+      "end": 16.77
+    },
+    {
+      "word": "and",
+      "start": 16.77,
+      "end": 17.25
+    },
+    {
+      "word": "my",
+      "start": 17.25,
+      "end": 17.73
+    },
+    {
+      "word": "productivity",
+      "start": 17.73,
+      "end": 18.22
+    },
+    {
+      "word": "skyrocketed",
+      "start": 18.22,
+      "end": 18.7
+    },
+    {
+      "word": "Machine",
+      "start": 18.9,
+      "end": 19.48
+    },
+    {
+      "word": "learning",
+      "start": 19.48,
+      "end": 20.06
+    },
+    {
+      "word": "models",
+      "start": 20.06,
+      "end": 20.64
+    },
+    {
+      "word": "adapt",
+      "start": 20.64,
+      "end": 21.21
+    },
+    {
+      "word": "and",
+      "start": 21.21,
+      "end": 21.79
+    },
+    {
+      "word": "learn",
+      "start": 21.79,
+      "end": 22.37
+    },
+    {
+      "word": "constantly",
+      "start": 22.37,
+      "end": 22.95
+    },
+    {
+      "word": "shocking",
+      "start": 23.15,
+      "end": 24.15
+    },
+    {
+      "word": "breakthrough",
+      "start": 24.15,
+      "end": 25.15
+    },
+    {
+      "word": "absolutely",
+      "start": 25.45,
+      "end": 26.45
+    },
+    {
+      "word": "unbelievable",
+      "start": 26.45,
+      "end": 27.45
+    },
+    {
+      "word": "Artificial",
+      "start": 27.75,
+      "end": 28.33
+    },
+    {
+      "word": "intelligence",
+      "start": 28.33,
+      "end": 28.91
+    },
+    {
+      "word": "can",
+      "start": 28.91,
+      "end": 29.49
+    },
+    {
+      "word": "analyze",
+      "start": 29.49,
+      "end": 30.06
+    },
+    {
+      "word": "massive",
+      "start": 30.06,
+      "end": 30.64
+    },
+    {
+      "word": "data",
+      "start": 30.64,
+      "end": 31.22
+    },
+    {
+      "word": "instantly",
+      "start": 31.22,
+      "end": 31.8
+    },
+    {
+      "word": "Teams",
+      "start": 32.0,
+      "end": 32.48
+    },
+    {
+      "word": "collaborating",
+      "start": 32.48,
+      "end": 32.97
+    },
+    {
+      "word": "in",
+      "start": 32.97,
+      "end": 33.45
+    },
+    {
+      "word": "real",
+      "start": 33.45,
+      "end": 33.93
+    },
+    {
+      "word": "time",
+      "start": 33.93,
+      "end": 34.42
+    },
+    {
+      "word": "across",
+      "start": 34.42,
+      "end": 34.9
+    },
+    {
+      "word": "continents",
+      "start": 34.9,
+      "end": 35.38
+    },
+    {
+      "word": "eliminated",
+      "start": 35.38,
+      "end": 35.87
+    },
+    {
+      "word": "delays",
+      "start": 35.87,
+      "end": 36.35
+    },
+    {
+      "word": "Data",
+      "start": 36.55,
+      "end": 37.2
+    },
+    {
+      "word": "visualization",
+      "start": 37.2,
+      "end": 37.85
+    },
+    {
+      "word": "patterns",
+      "start": 37.85,
+      "end": 38.5
+    },
+    {
+      "word": "become",
+      "start": 38.5,
+      "end": 39.15
+    },
+    {
+      "word": "obvious",
+      "start": 39.15,
+      "end": 39.8
+    },
+    {
+      "word": "immediately",
+      "start": 39.8,
+      "end": 40.45
+    },
+    {
+      "word": "Interactive",
+      "start": 40.65,
+      "end": 41.23
+    },
+    {
+      "word": "dashboards",
+      "start": 41.23,
+      "end": 41.81
+    },
+    {
+      "word": "helped",
+      "start": 41.81,
+      "end": 42.39
+    },
+    {
+      "word": "my",
+      "start": 42.39,
+      "end": 42.96
+    },
+    {
+      "word": "team",
+      "start": 42.96,
+      "end": 43.54
+    },
+    {
+      "word": "spot",
+      "start": 43.54,
+      "end": 44.12
+    },
+    {
+      "word": "trends",
+      "start": 44.12,
+      "end": 44.7
+    },
+    {
+      "word": "Real",
+      "start": 44.9,
+      "end": 45.48
+    },
+    {
+      "word": "time",
+      "start": 45.48,
+      "end": 46.06
+    },
+    {
+      "word": "collaboration",
+      "start": 46.06,
+      "end": 46.64
+    },
+    {
+      "word": "increased",
+      "start": 46.64,
+      "end": 47.21
+    },
+    {
+      "word": "our",
+      "start": 47.21,
+      "end": 47.79
+    },
+    {
+      "word": "efficiency",
+      "start": 47.79,
+      "end": 48.37
+    },
+    {
+      "word": "significantly",
+      "start": 48.37,
+      "end": 48.95
+    },
+    {
+      "word": "secret",
+      "start": 49.15,
+      "end": 50.05
+    },
+    {
+      "word": "exposed",
+      "start": 50.05,
+      "end": 50.95
+    },
+    {
+      "word": "mind",
+      "start": 51.25,
+      "end": 51.92
+    },
+    {
+      "word": "blown",
+      "start": 51.92,
+      "end": 52.58
+    },
+    {
+      "word": "right",
+      "start": 52.58,
+      "end": 53.25
+    }
+  ]
+}
