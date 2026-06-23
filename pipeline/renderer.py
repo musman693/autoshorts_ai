@@ -43,7 +43,7 @@ def get_ffmpeg_executable():
 def get_autoshorts_root():
     return os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-def render_clips(video_path: str, clips: list, job_id: str = "default_job") -> list:
+def render_clips(video_path: str, clips: list, job_id: str = "default_job", target_width: int = 1080) -> list:
     """
     Render short vertical clips from a source video.
 
@@ -56,6 +56,7 @@ def render_clips(video_path: str, clips: list, job_id: str = "default_job") -> l
                           "end": float
                       }
         job_id (str): Prefix for output clip files.
+        target_width (int): Output width for vertical shorts. Default 1080 (9:16 aspect). Use 720 for faster processing.
 
     Returns:
         list[dict]:
@@ -105,7 +106,7 @@ def render_clips(video_path: str, clips: list, job_id: str = "default_job") -> l
 
             # Convert to vertical Shorts format (9:16)
             "-vf",
-            "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920",
+            f"scale={target_width}:{int(target_width*16/9)}:force_original_aspect_ratio=increase,crop={target_width}:{int(target_width*16/9)}",
 
             "-c:v",
             "libx264",

@@ -1119,6 +1119,461 @@
       "word": "delays",
       "start": 139.57,
       "end": 140.05
+    },
+    {
+      "word": "Data",
+      "start": 140.25,
+      "end": 140.9
+    },
+    {
+      "word": "visualization",
+      "start": 140.9,
+      "end": 141.55
+    },
+    {
+      "word": "patterns",
+      "start": 141.55,
+      "end": 142.2
+    },
+    {
+      "word": "become",
+      "start": 142.2,
+      "end": 142.85
+    },
+    {
+      "word": "obvious",
+      "start": 142.85,
+      "end": 143.5
+    },
+    {
+      "word": "immediately",
+      "start": 143.5,
+      "end": 144.15
+    },
+    {
+      "word": "Interactive",
+      "start": 144.35,
+      "end": 144.93
+    },
+    {
+      "word": "dashboards",
+      "start": 144.93,
+      "end": 145.51
+    },
+    {
+      "word": "helped",
+      "start": 145.51,
+      "end": 146.09
+    },
+    {
+      "word": "my",
+      "start": 146.09,
+      "end": 146.66
+    },
+    {
+      "word": "team",
+      "start": 146.66,
+      "end": 147.24
+    },
+    {
+      "word": "spot",
+      "start": 147.24,
+      "end": 147.82
+    },
+    {
+      "word": "trends",
+      "start": 147.82,
+      "end": 148.4
+    },
+    {
+      "word": "Real",
+      "start": 148.6,
+      "end": 149.18
+    },
+    {
+      "word": "time",
+      "start": 149.18,
+      "end": 149.76
+    },
+    {
+      "word": "collaboration",
+      "start": 149.76,
+      "end": 150.34
+    },
+    {
+      "word": "increased",
+      "start": 150.34,
+      "end": 150.91
+    },
+    {
+      "word": "our",
+      "start": 150.91,
+      "end": 151.49
+    },
+    {
+      "word": "efficiency",
+      "start": 151.49,
+      "end": 152.07
+    },
+    {
+      "word": "significantly",
+      "start": 152.07,
+      "end": 152.65
+    },
+    {
+      "word": "shocking",
+      "start": 152.85,
+      "end": 153.85
+    },
+    {
+      "word": "breakthrough",
+      "start": 153.85,
+      "end": 154.85
+    },
+    {
+      "word": "Security",
+      "start": 155.15,
+      "end": 155.8
+    },
+    {
+      "word": "encryption",
+      "start": 155.8,
+      "end": 156.45
+    },
+    {
+      "word": "protected",
+      "start": 156.45,
+      "end": 157.1
+    },
+    {
+      "word": "all",
+      "start": 157.1,
+      "end": 157.75
+    },
+    {
+      "word": "sensitive",
+      "start": 157.75,
+      "end": 158.4
+    },
+    {
+      "word": "data",
+      "start": 158.4,
+      "end": 159.05
+    },
+    {
+      "word": "These",
+      "start": 159.25,
+      "end": 159.77
+    },
+    {
+      "word": "game",
+      "start": 159.77,
+      "end": 160.3
+    },
+    {
+      "word": "changing",
+      "start": 160.3,
+      "end": 160.82
+    },
+    {
+      "word": "innovations",
+      "start": 160.82,
+      "end": 161.35
+    },
+    {
+      "word": "will",
+      "start": 161.35,
+      "end": 161.87
+    },
+    {
+      "word": "transform",
+      "start": 161.87,
+      "end": 162.4
+    },
+    {
+      "word": "your",
+      "start": 162.4,
+      "end": 162.92
+    },
+    {
+      "word": "workflow",
+      "start": 162.92,
+      "end": 163.45
+    },
+    {
+      "word": "Integration",
+      "start": 163.65,
+      "end": 164.23
+    },
+    {
+      "word": "across",
+      "start": 164.23,
+      "end": 164.81
+    },
+    {
+      "word": "platforms",
+      "start": 164.81,
+      "end": 165.39
+    },
+    {
+      "word": "became",
+      "start": 165.39,
+      "end": 165.96
+    },
+    {
+      "word": "seamless",
+      "start": 165.96,
+      "end": 166.54
+    },
+    {
+      "word": "and",
+      "start": 166.54,
+      "end": 167.12
+    },
+    {
+      "word": "efficient",
+      "start": 167.12,
+      "end": 167.7
+    },
+    {
+      "word": "Advanced",
+      "start": 167.9,
+      "end": 168.55
+    },
+    {
+      "word": "algorithms",
+      "start": 168.55,
+      "end": 169.2
+    },
+    {
+      "word": "handle",
+      "start": 169.2,
+      "end": 169.85
+    },
+    {
+      "word": "complex",
+      "start": 169.85,
+      "end": 170.5
+    },
+    {
+      "word": "tasks",
+      "start": 170.5,
+      "end": 171.15
+    },
+    {
+      "word": "automatically",
+      "start": 171.15,
+      "end": 171.8
+    },
+    {
+      "word": "Predictive",
+      "start": 172.0,
+      "end": 172.65
+    },
+    {
+      "word": "analytics",
+      "start": 172.65,
+      "end": 173.3
+    },
+    {
+      "word": "increased",
+      "start": 173.3,
+      "end": 173.95
+    },
+    {
+      "word": "our",
+      "start": 173.95,
+      "end": 174.6
+    },
+    {
+      "word": "revenue",
+      "start": 174.6,
+      "end": 175.25
+    },
+    {
+      "word": "substantially",
+      "start": 175.25,
+      "end": 175.9
+    },
+    {
+      "word": "Customer",
+      "start": 176.1,
+      "end": 176.68
+    },
+    {
+      "word": "behavior",
+      "start": 176.68,
+      "end": 177.26
+    },
+    {
+      "word": "analysis",
+      "start": 177.26,
+      "end": 177.84
+    },
+    {
+      "word": "improved",
+      "start": 177.84,
+      "end": 178.41
+    },
+    {
+      "word": "our",
+      "start": 178.41,
+      "end": 178.99
+    },
+    {
+      "word": "targeting",
+      "start": 178.99,
+      "end": 179.57
+    },
+    {
+      "word": "accuracy",
+      "start": 179.57,
+      "end": 180.15
+    },
+    {
+      "word": "Real",
+      "start": 180.35,
+      "end": 180.93
+    },
+    {
+      "word": "time",
+      "start": 180.93,
+      "end": 181.51
+    },
+    {
+      "word": "updates",
+      "start": 181.51,
+      "end": 182.09
+    },
+    {
+      "word": "keep",
+      "start": 182.09,
+      "end": 182.66
+    },
+    {
+      "word": "everyone",
+      "start": 182.66,
+      "end": 183.24
+    },
+    {
+      "word": "synchronized",
+      "start": 183.24,
+      "end": 183.82
+    },
+    {
+      "word": "perfectly",
+      "start": 183.82,
+      "end": 184.4
+    },
+    {
+      "word": "System",
+      "start": 184.6,
+      "end": 185.25
+    },
+    {
+      "word": "optimization",
+      "start": 185.25,
+      "end": 185.9
+    },
+    {
+      "word": "reduced",
+      "start": 185.9,
+      "end": 186.55
+    },
+    {
+      "word": "processing",
+      "start": 186.55,
+      "end": 187.2
+    },
+    {
+      "word": "time",
+      "start": 187.2,
+      "end": 187.85
+    },
+    {
+      "word": "dramatically",
+      "start": 187.85,
+      "end": 188.5
+    },
+    {
+      "word": "Performance",
+      "start": 188.7,
+      "end": 189.35
+    },
+    {
+      "word": "metrics",
+      "start": 189.35,
+      "end": 190.0
+    },
+    {
+      "word": "showed",
+      "start": 190.0,
+      "end": 190.65
+    },
+    {
+      "word": "consistent",
+      "start": 190.65,
+      "end": 191.3
+    },
+    {
+      "word": "improvement",
+      "start": 191.3,
+      "end": 191.95
+    },
+    {
+      "word": "daily",
+      "start": 191.95,
+      "end": 192.6
+    },
+    {
+      "word": "Strategic",
+      "start": 192.8,
+      "end": 193.55
+    },
+    {
+      "word": "implementation",
+      "start": 193.55,
+      "end": 194.3
+    },
+    {
+      "word": "delivered",
+      "start": 194.3,
+      "end": 195.05
+    },
+    {
+      "word": "measurable",
+      "start": 195.05,
+      "end": 195.8
+    },
+    {
+      "word": "results",
+      "start": 195.8,
+      "end": 196.55
+    },
+    {
+      "word": "Continuous",
+      "start": 196.75,
+      "end": 197.5
+    },
+    {
+      "word": "learning",
+      "start": 197.5,
+      "end": 198.25
+    },
+    {
+      "word": "improved",
+      "start": 198.25,
+      "end": 199.0
+    },
+    {
+      "word": "outcomes",
+      "start": 199.0,
+      "end": 199.75
+    },
+    {
+      "word": "exponentially",
+      "start": 199.75,
+      "end": 200.5
     }
   ]
 }

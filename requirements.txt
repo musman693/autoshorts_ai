@@ -7,3 +7,7 @@ numpy
 imageio-ffmpeg
 # Fix: Add Whisper for real video transcription
 openai-whisper
+# YouTube video downloader
+yt-dlp
+# Performance optimization
+tqdm

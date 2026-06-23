@@ -13,64 +13,239 @@
             <p class="tagline">Transform long videos into viral 9:16 shorts using AI window scoring</p>
         </header>
 
-        <main class="grid-layout">
-            <section class="control-panel">
-                <form id="uploadForm" enctype="multipart/form-data">
-                    <div class="drop-zone" id="dropZone">
-                        <span class="drop-zone__prompt">Drag & Drop Video or Click to Browse</span>
-                        <input type="file" name="video" id="videoInput" accept="video/*" required>
-                    </div>
+        <div class="main-layout">
+            <!-- Sidebar Navigation -->
+            <aside class="sidebar">
+                <nav class="nav-menu">
+                    <button class="nav-item active" data-page="upload-page" onclick="switchPage('upload-page')">
+                        <span class="nav-icon">📤</span>
+                        <span class="nav-text">Upload Video</span>
+                    </button>
+                    <button class="nav-item" data-page="pipeline-page" onclick="switchPage('pipeline-page')" disabled id="pipelineBtn">
+                        <span class="nav-icon">⚙️</span>
+                        <span class="nav-text">Processing</span>
+                    </button>
+                    <button class="nav-item" data-page="results-page" onclick="switchPage('results-page')" disabled id="resultsBtn">
+                        <span class="nav-icon">✨</span>
+                        <span class="nav-text">Results</span>
+                    </button>
+                </nav>
+            </aside>
 
-                    <div class="settings-group">
-                        <h3>⚙️ Pipeline Configurations</h3>
+            <!-- Main Content Area -->
+            <main class="content-area">
+                
+                <!-- PAGE 1: Upload -->
+                <section id="upload-page" class="page active">
+                    <div class="page-content">
+                        <h2 class="page-title">Upload Video</h2>
                         
-                        <div class="input-field">
-                            <label for="num_clips">Max Clips to Generate:</label>
-                            <input type="number" id="num_clips" name="num_clips" value="3" min="1" max="10">
+                        <form id="uploadForm" enctype="multipart/form-data">
+                            <!-- Upload Option Tabs -->
+                            <div class="upload-tabs">
+                                <button type="button" class="tab-btn active" data-tab="file-upload" id="fileTabBtn">
+                                    📁 Local File
+                                </button>
+                                <button type="button" class="tab-btn" data-tab="youtube-url" id="youtubeTabBtn">
+                                    🎥 YouTube URL
+                                </button>
+                            </div>
+
+                            <!-- File Upload Tab -->
+                            <div id="file-upload" class="upload-tab-content active">
+                                <div class="drop-zone" id="dropZone">
+                                    <span class="drop-zone__prompt">Drag & Drop Video or Click to Browse</span>
+                                    <input type="file" name="video" id="videoInput" accept="video/*">
+                                </div>
+                                <div class="file-info" id="fileInfo"></div>
+                            </div>
+
+                            <!-- YouTube URL Tab -->
+                            <div id="youtube-url" class="upload-tab-content">
+                                <div class="input-field-full">
+                                    <label for="youtubeUrl">YouTube Video URL:</label>
+                                    <div class="input-group">
+                                        <input type="url" id="youtubeUrl" name="youtubeUrl" placeholder="https://www.youtube.com/watch?v=..." class="url-input">
+                                        <button type="button" id="validateBtn" class="btn-validate" onclick="validateYoutubeUrl()">Validate</button>
+                                    </div>
+                                    <div id="youtubeInfo" class="file-info"></div>
+                                </div>
+                            </div>
+
+                            <!-- Settings -->
+                            <div class="settings-group">
+                                <h3>⚙️ Pipeline Configurations</h3>
+                                
+                                <div class="input-field">
+                                    <label for="whisper_model">Whisper Model:</label>
+                                    <select id="whisper_model" name="whisper_model">
+                                        <option value="tiny" selected>Tiny (⚡ Fastest)</option>
+                                        <option value="base">Base (🎯 Balanced)</option>
+                                        <option value="small">Small</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="large">Large (🎨 Accurate)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="input-field">
+                                    <label for="num_clips">Max Clips to Generate:</label>
+                                    <input type="number" id="num_clips" name="num_clips" value="2" min="1" max="10">
+                                </div>
+
+                                <div class="input-field">
+                                    <label for="min_dur">Minimum Clip Duration (sec):</label>
+                                    <input type="number" id="min_dur" name="min_dur" value="15" min="1">
+                                </div>
+
+                                <div class="input-field">
+                                    <label for="max_dur">Maximum Clip Duration (sec):</label>
+                                    <input type="number" id="max_dur" name="max_dur" value="45" min="2">
+                                </div>
+
+                                <div class="input-field">
+                                    <label>
+                                        <input type="checkbox" id="optimize_speed" name="optimize_speed" checked>
+                                        ⚡ Speed Optimization Mode (720p output, faster processing)
+                                    </label>
+                                </div>
+
+                                <div class="info-box">
+                                    <strong>⚡ Performance Benchmark:</strong><br>
+                                    • <strong>Speed Mode</strong> (Tiny + 720p): 3-5 min for 15-min video, 3 clips ✅<br>
+                                    • <strong>Quality Mode</strong> (Base + 1080p): 12-15 min for 15-min video, 3 clips<br>
+                                    • <strong>Tiny model</strong>: 2-3 min default<br>
+                                    • <strong>Transcripts cached</strong>: 6-8 min saved on repeats<br>
+                                    • <strong>Parallel processing</strong>: Effects on 4 threads
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-primary btn-large" id="submitBtn">Generate Shorts</button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- PAGE 2: Pipeline Progress -->
+                <section id="pipeline-page" class="page">
+                    <div class="page-content">
+                        <h2 class="page-title">Pipeline Progress</h2>
+                        
+                        <!-- Pipeline Steps Visualization -->
+                        <div class="pipeline-visualization">
+                            <div class="pipeline-steps">
+                                <div class="pipeline-step" data-stage="queued">
+                                    <div class="step-icon">📤</div>
+                                    <div class="step-label">Upload</div>
+                                </div>
+                                <div class="pipeline-arrow">→</div>
+                                <div class="pipeline-step" data-stage="transcribing">
+                                    <div class="step-icon">🗣️</div>
+                                    <div class="step-label">Transcribe</div>
+                                </div>
+                                <div class="pipeline-arrow">→</div>
+                                <div class="pipeline-step" data-stage="scoring">
+                                    <div class="step-icon">⭐</div>
+                                    <div class="step-label">Score</div>
+                                </div>
+                                <div class="pipeline-arrow">→</div>
+                                <div class="pipeline-step" data-stage="selecting">
+                                    <div class="step-icon">✂️</div>
+                                    <div class="step-label">Select</div>
+                                </div>
+                                <div class="pipeline-arrow">→</div>
+                                <div class="pipeline-step" data-stage="rendering">
+                                    <div class="step-icon">🎬</div>
+                                    <div class="step-label">Render</div>
+                                </div>
+                                <div class="pipeline-arrow">→</div>
+                                <div class="pipeline-step" data-stage="effects">
+                                    <div class="step-icon">✨</div>
+                                    <div class="step-label">Effects</div>
+                                </div>
+                                <div class="pipeline-arrow">→</div>
+                                <div class="pipeline-step" data-stage="done">
+                                    <div class="step-icon">🎉</div>
+                                    <div class="step-label">Done</div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="input-field">
-                            <label for="min_dur">Minimum Clip Duration (sec):</label>
-                            <input type="number" id="min_dur" name="min_dur" value="15" min="1">
+                        <!-- Overall Progress -->
+                        <div class="progress-section">
+                            <div class="progress-header">
+                                <span>Overall Progress</span>
+                                <span class="status-badge" id="statusBadge">Preparing...</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <div class="progress-text" id="progressText">0%</div>
                         </div>
 
-                        <div class="input-field">
-                            <label for="max_dur">Maximum Clip Duration (sec):</label>
-                            <input type="number" id="max_dur" name="max_dur" value="60" min="2">
+                        <!-- Clips Processing Sequence -->
+                        <div class="clips-sequence-container" id="clipsSequenceContainer" style="display: none;">
+                            <div class="sequence-header">
+                                <h3>📹 Clips Processing Sequence</h3>
+                                <span class="clips-count" id="clipsCount"></span>
+                            </div>
+                            <div class="clips-sequence" id="clipsSequence"></div>
+                        </div>
+
+                        <!-- Clips Progress -->
+                        <div class="clips-progress" id="clipsProgress"></div>
+
+                        <!-- Transcript Panel -->
+                        <div class="transcript-panel" id="transcriptPanel" style="display: none;">
+                            <div class="transcript-header" onclick="document.querySelector('.transcript-body').classList.toggle('show')">
+                                <span>📝 Full Transcript</span>
+                                <span class="transcript-toggle">▼</span>
+                            </div>
+                            <div class="transcript-body" id="transcriptBody"></div>
+                        </div>
+
+                        <!-- Terminal Logs -->
+                        <div class="terminal-container">
+                            <div class="terminal-header">📟 Terminal Logs</div>
+                            <div class="terminal-body" id="terminalLogs">
+                                <span class="log-info">[System] Pipeline initialized...</span>
+                            </div>
                         </div>
                     </div>
+                </section>
 
-                    <button type="submit" class="btn-primary" id="submitBtn">Generate Shorts</button>
-                </form>
-            </section>
+                <!-- PAGE 3: Results -->
+                <section id="results-page" class="page">
+                    <div class="page-content">
+                        <h2 class="page-title">✨ Generated Viral Shorts</h2>
+                        
+                        <!-- Results Stats -->
+                        <div class="results-stats" id="resultsStats" style="display: none;">
+                            <div class="stat-item">
+                                <div class="stat-value" id="totalClips">0</div>
+                                <div class="stat-label">Total Clips</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="totalDuration">0:00</div>
+                                <div class="stat-label">Total Duration</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="processingTime">0:00</div>
+                                <div class="stat-label">Processing Time</div>
+                            </div>
+                        </div>
 
-            <section class="monitor-panel">
-                <div class="panel-header">
-                    <h3>📊 Live Pipeline Status</h3>
-                    <span class="status-badge" id="statusBadge">Idle</span>
-                </div>
+                        <!-- Video Grid -->
+                        <div class="video-grid" id="videoGrid"></div>
 
-                <div class="progress-wrapper">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
+                        <!-- Action Buttons -->
+                        <div class="results-actions">
+                            <button class="btn-secondary" onclick="goBackToUpload()">← New Video</button>
+                            <button class="btn-secondary" onclick="downloadAllClips()" id="downloadAllBtn" style="display: none;">📥 Download All</button>
+                        </div>
                     </div>
-                </div>
+                </section>
 
-                <div class="terminal-container">
-                    <div class="terminal-header">Terminal Logs</div>
-                    <div class="terminal-body" id="terminalLogs">
-                        <span class="log-info">[System] Ready. Awaiting video upload...</span>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <section class="results-panel" id="resultsPanel" style="display: none;">
-            <div class="panel-header">
-                <h2>✨ Generated Viral Shorts</h2>
-            </div>
-            <div class="video-grid" id="videoGrid"></div>
-        </section>
+            </main>
+        </div>
     </div>
 
     <script src="{{ url_for('static', filename='app.js') }}"></script>
